@@ -1,7 +1,6 @@
 package lt.codeacademy.petsitting.services;
 
 
-import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.repositories.ServiceProviderRepository;
 import org.junit.jupiter.api.Assertions;
