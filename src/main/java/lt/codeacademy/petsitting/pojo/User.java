@@ -3,10 +3,9 @@ package lt.codeacademy.petsitting.pojo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,6 +20,12 @@ public class User {
 
     private String username;
     private String password;
+
+    @ManyToMany( fetch = FetchType.LAZY )
+    @JoinTable( name = "user_roles",
+                joinColumns = @JoinColumn( name = "user_id" ),
+                inverseJoinColumns = @JoinColumn( name = "role_id" ))
+    private Set<Role> roles = new HashSet<>();
 
 
 }
