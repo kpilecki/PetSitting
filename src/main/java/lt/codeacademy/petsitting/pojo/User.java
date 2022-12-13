@@ -1,6 +1,7 @@
 package lt.codeacademy.petsitting.pojo;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import javax.persistence.Id;
 
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @Entity
 public class User {
@@ -20,11 +22,5 @@ public class User {
     private String username;
     private String password;
 
-    @Builder
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
 
 }

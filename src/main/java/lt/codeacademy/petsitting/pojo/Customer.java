@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 @Entity
 public class Customer extends User{
 
@@ -22,11 +24,4 @@ public class Customer extends User{
     private String firstName;
     private String lastName;
 
-    @Builder
-
-    public Customer(String username, String password, String firstName, String lastName) {
-        super(username, password);
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
 }
