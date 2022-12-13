@@ -25,4 +25,18 @@ public class UserService {
     public Optional<User> getUserById(Long id ){
         return userRepository.findById( id );
     }
+
+    public Optional<User> findByUsername( String username ){
+        return userRepository.findByUsername( username );
+    }
+
+    public boolean existsByUsername( String username ) {
+        return userRepository.existsByUsername( username );
+    }
+
+    public boolean existsByEmail( String email ) {
+        return userRepository.existsByEmail( email );
+    }
+
+
 }
