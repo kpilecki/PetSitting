@@ -3,6 +3,7 @@ package lt.codeacademy.petsitting.services;
 
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.repositories.ServiceProviderRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,8 @@ public class ServiceProviderServiceTest {
     @Autowired
     ServiceProviderService serviceProviderService;
 
-    @BeforeEach
-    void setUp(){
+    @AfterEach
+    void cleanUp(){
         serviceProviderRepository.deleteAll();
     }
 

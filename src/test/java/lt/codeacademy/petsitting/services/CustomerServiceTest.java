@@ -3,9 +3,7 @@ package lt.codeacademy.petsitting.services;
 
 import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.repositories.CustomerRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,8 +18,8 @@ public class CustomerServiceTest {
     @Autowired
     CustomerService customerService;
 
-    @BeforeEach
-    void setUp(){
+    @AfterEach
+    void cleanUp(){
         customerRepository.deleteAll();
     }
 

@@ -2,9 +2,7 @@ package lt.codeacademy.petsitting.services;
 
 import lt.codeacademy.petsitting.pojo.User;
 import lt.codeacademy.petsitting.repositories.UserRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,8 +19,8 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-    @BeforeEach
-    void setUp(){
+    @AfterEach
+    void cleanUp(){
         userRepository.deleteAll();
     }
 
