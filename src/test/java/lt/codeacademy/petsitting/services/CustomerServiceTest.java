@@ -3,9 +3,7 @@ package lt.codeacademy.petsitting.services;
 
 import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.repositories.CustomerRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,19 +18,14 @@ public class CustomerServiceTest {
     @Autowired
     CustomerService customerService;
 
-    @BeforeEach
-    void setUp(){
+    @AfterEach
+    void cleanUp(){
         customerRepository.deleteAll();
     }
 
     @Test
     void save_whenValidCustomerIsSupplied_customerIsSaved(){
-        Customer customerToSave = Customer.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        Customer customerToSave = getValidCustomer();
 
         customerService.save( customerToSave );
 
@@ -41,12 +34,7 @@ public class CustomerServiceTest {
 
     @Test
     void save_whenValidCustomerIsSupplied_idIsGenerated(){
-        Customer customerToSave = Customer.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        Customer customerToSave = getValidCustomer();
 
         Customer savedCustomer = customerService.save( customerToSave );
 
@@ -55,12 +43,7 @@ public class CustomerServiceTest {
 
     @Test
     void save_whenValidCustomerIsSupplied_sameCustomerIsReturned(){
-        Customer customerToSave = Customer.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        Customer customerToSave = getValidCustomer();
 
         Customer savedCustomer = customerService.save( customerToSave );
 
@@ -69,6 +52,16 @@ public class CustomerServiceTest {
         Assertions.assertEquals( customerToSave.getPassword(), savedCustomer.getPassword() );
         Assertions.assertEquals( customerToSave.getFirstName(), savedCustomer.getFirstName() );
         Assertions.assertEquals( customerToSave.getLastName(), savedCustomer.getLastName() );
+    }
+
+    public Customer getValidCustomer(){
+        return Customer.builder()
+                .username( "John" )
+                .password( "P4ssword" )
+                .firstName( "Johny" )
+                .lastName( "Surname" )
+                .email( "test@email.com" )
+                .build();
     }
 
 
