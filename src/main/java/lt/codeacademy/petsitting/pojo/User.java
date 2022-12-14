@@ -4,6 +4,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,8 +21,16 @@ public class User {
     @GeneratedValue( strategy = GenerationType.AUTO )
     private Long id;
 
+    @NotBlank
+    @Size( min = 4, max = 255 )
     private String username;
+
+    @NotBlank
+    @Size( min = 4, max = 255 )
     private String password;
+
+    @NotBlank
+    @Email
     private String email;
 
     @ManyToMany( fetch = FetchType.LAZY )

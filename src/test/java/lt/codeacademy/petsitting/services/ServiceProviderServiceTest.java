@@ -28,12 +28,7 @@ public class ServiceProviderServiceTest {
 
     @Test
     void save_whenValidServiceProviderIsSupplied_serviceProviderIsSaved(){
-        ServiceProvider serviceProviderToSave = ServiceProvider.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        ServiceProvider serviceProviderToSave = getValidServiceProvider();
 
         serviceProviderService.save( serviceProviderToSave );
 
@@ -42,12 +37,7 @@ public class ServiceProviderServiceTest {
 
     @Test
     void save_whenValidServiceProviderIsSupplied_idIsGenerated(){
-        ServiceProvider serviceProviderToSave = ServiceProvider.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        ServiceProvider serviceProviderToSave = getValidServiceProvider();
 
         ServiceProvider savedServiceProvider = serviceProviderService.save( serviceProviderToSave );
 
@@ -56,12 +46,7 @@ public class ServiceProviderServiceTest {
 
     @Test
     void save_whenValidServiceProviderIsSupplied_sameServiceProviderIsReturned(){
-        ServiceProvider serviceProviderToSave = ServiceProvider.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        ServiceProvider serviceProviderToSave = getValidServiceProvider();
 
         ServiceProvider savedServiceProvider = serviceProviderService.save( serviceProviderToSave );
 
@@ -70,5 +55,15 @@ public class ServiceProviderServiceTest {
         Assertions.assertEquals( serviceProviderToSave.getPassword(), savedServiceProvider.getPassword() );
         Assertions.assertEquals( serviceProviderToSave.getFirstName(), savedServiceProvider.getFirstName() );
         Assertions.assertEquals( serviceProviderToSave.getLastName(), savedServiceProvider.getLastName() );
+    }
+
+    private ServiceProvider getValidServiceProvider(){
+        return ServiceProvider.builder()
+                .username( "John" )
+                .password( "P4ssword" )
+                .firstName( "Johny" )
+                .lastName( "Surname" )
+                .email( "test@email.com" )
+                .build();
     }
 }

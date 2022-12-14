@@ -25,12 +25,7 @@ public class CustomerServiceTest {
 
     @Test
     void save_whenValidCustomerIsSupplied_customerIsSaved(){
-        Customer customerToSave = Customer.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        Customer customerToSave = getValidCustomer();
 
         customerService.save( customerToSave );
 
@@ -39,12 +34,7 @@ public class CustomerServiceTest {
 
     @Test
     void save_whenValidCustomerIsSupplied_idIsGenerated(){
-        Customer customerToSave = Customer.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        Customer customerToSave = getValidCustomer();
 
         Customer savedCustomer = customerService.save( customerToSave );
 
@@ -53,12 +43,7 @@ public class CustomerServiceTest {
 
     @Test
     void save_whenValidCustomerIsSupplied_sameCustomerIsReturned(){
-        Customer customerToSave = Customer.builder()
-                .username( "John" )
-                .password( "P4ssword" )
-                .firstName( "Johny" )
-                .lastName( "Surname" )
-                .build();
+        Customer customerToSave = getValidCustomer();
 
         Customer savedCustomer = customerService.save( customerToSave );
 
@@ -67,6 +52,16 @@ public class CustomerServiceTest {
         Assertions.assertEquals( customerToSave.getPassword(), savedCustomer.getPassword() );
         Assertions.assertEquals( customerToSave.getFirstName(), savedCustomer.getFirstName() );
         Assertions.assertEquals( customerToSave.getLastName(), savedCustomer.getLastName() );
+    }
+
+    public Customer getValidCustomer(){
+        return Customer.builder()
+                .username( "John" )
+                .password( "P4ssword" )
+                .firstName( "Johny" )
+                .lastName( "Surname" )
+                .email( "test@email.com" )
+                .build();
     }
 
 
