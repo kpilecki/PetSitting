@@ -1,30 +1,31 @@
 package lt.codeacademy.petsitting.controllers;
 
+import lt.codeacademy.petsitting.error.ApiError;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
 import lt.codeacademy.petsitting.pojo.Role;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.pojo.UserRoles;
 import lt.codeacademy.petsitting.services.RoleService;
 import lt.codeacademy.petsitting.services.ServiceProviderService;
-import lt.codeacademy.petsitting.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/api/providers")
 public class ServiceProviderController {
-
-    private final UserService userService;
 
     private final ServiceProviderService serviceProviderService;
 
@@ -33,8 +34,8 @@ public class ServiceProviderController {
     private final PasswordEncoder encoder;
 
     @Autowired
-    public ServiceProviderController(UserService userService, ServiceProviderService serviceProviderService, RoleService roleService, PasswordEncoder encoder) {
-        this.userService = userService;
+    public ServiceProviderController( ServiceProviderService serviceProviderService, RoleService roleService, PasswordEncoder encoder) {
+
         this.serviceProviderService = serviceProviderService;
         this.roleService = roleService;
         this.encoder = encoder;
@@ -42,15 +43,7 @@ public class ServiceProviderController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerServiceProvider(@Valid @RequestBody ServiceProvider serviceProvider ){
-        if( userService.existsByUsername( serviceProvider.getUsername() )){
-            return ResponseEntity
-                    .badRequest()
-                    .body( new MessageResponse( "Error: Username is already taken!" ));
-        } else if( userService.existsByEmail( serviceProvider.getEmail() )){
-            return ResponseEntity
-                    .badRequest()
-                    .body( new MessageResponse( "Error: Email is already in use!" ));
-        }
+
         ServiceProvider newServiceProvider = ServiceProvider.builder()
                 .username( serviceProvider.getUsername() )
                 .password( encoder.encode( serviceProvider.getPassword() ))
@@ -76,5 +69,22 @@ public class ServiceProviderController {
         serviceProviderService.save( newServiceProvider );
 
         return ResponseEntity.ok( new MessageResponse( "User registered successfully!" ) );
+    }
+
+    @ExceptionHandler( {MethodArgumentNotValidException.class} )
+    @ResponseStatus( HttpStatus.BAD_REQUEST )
+    ApiError handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request ){
+        ApiError apiError = new ApiError( 400, "Validation error", request.getServletPath() );
+
+        BindingResult result = exception.getBindingResult();
+
+        Map<String, String> validationErrors = new HashMap<>();
+
+        for( FieldError fieldError : result.getFieldErrors() ){
+            validationErrors.put( fieldError.getField(), fieldError.getDefaultMessage() );
+        }
+        apiError.setValidationErrors( validationErrors );
+
+        return apiError;
     }
 }
