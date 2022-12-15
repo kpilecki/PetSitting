@@ -2,6 +2,7 @@ package lt.codeacademy.petsitting.controllers;
 
 import lt.codeacademy.petsitting.error.ApiError;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
+import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.pojo.Role;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.pojo.UserRoles;
@@ -10,6 +11,7 @@ import lt.codeacademy.petsitting.services.ServiceProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -39,6 +41,15 @@ public class ServiceProviderController {
         this.serviceProviderService = serviceProviderService;
         this.roleService = roleService;
         this.encoder = encoder;
+    }
+
+    @GetMapping( "/get" )
+    public ServiceProvider loadServiceProvider(){
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if( auth != null ){
+            return serviceProviderService.getByUsername( auth.getName() );
+        }
+        return null;
     }
 
     @PostMapping("/signup")

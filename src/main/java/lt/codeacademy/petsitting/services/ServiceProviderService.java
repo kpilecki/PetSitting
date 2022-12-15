@@ -1,5 +1,6 @@
 package lt.codeacademy.petsitting.services;
 
+import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.repositories.ServiceProviderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,5 +18,9 @@ public class ServiceProviderService {
 
     public ServiceProvider save( ServiceProvider serviceProvider ){
         return serviceProviderRepository.save( serviceProvider );
+    }
+
+    public ServiceProvider getByUsername( String username ) {
+        return serviceProviderRepository.findByUsername( username ).orElse( null );
     }
 }
