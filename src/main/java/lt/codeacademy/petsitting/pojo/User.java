@@ -2,11 +2,14 @@ package lt.codeacademy.petsitting.pojo;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lt.codeacademy.petsitting.validators.UniqueEmail;
+import lt.codeacademy.petsitting.validators.UniqueUsername;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +18,7 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
+@Table( name = "users" )
 public class User {
 
     @Id
@@ -23,6 +27,7 @@ public class User {
 
     @NotBlank
     @Size( min = 4, max = 255 )
+    @UniqueUsername
     private String username;
 
     @NotBlank
@@ -31,6 +36,7 @@ public class User {
 
     @NotBlank
     @Email
+    @UniqueEmail
     private String email;
 
     @ManyToMany( fetch = FetchType.LAZY )
