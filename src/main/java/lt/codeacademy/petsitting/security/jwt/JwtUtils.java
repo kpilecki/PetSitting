@@ -15,15 +15,13 @@ import java.util.Date;
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger( JwtUtils.class );
-    private SecretKey jwtSecret;
+    private final SecretKey jwtSecret = Keys.secretKeyFor( SignatureAlgorithm.HS512 );
 
     private int jwtExpirationMs = 86400000;
 
     public String generateJwtToken( Authentication authentication ) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
-        jwtSecret = Keys.secretKeyFor( SignatureAlgorithm.HS512 );
 
         return Jwts.builder()
                 .setSubject( userPrincipal.getUsername() )
@@ -44,6 +42,7 @@ public class JwtUtils {
     }
 
     public boolean validateJwtToken( String authToken ) {
+        System.out.println( jwtSecret );
         try {
             Jwts
                 .parserBuilder()
