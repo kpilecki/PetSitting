@@ -18,4 +18,8 @@ public class CustomerService {
     public Customer save( Customer customer ){
         return customerRepository.save( customer );
     }
+
+    public Customer getByUsername( String username ){
+        return customerRepository.getCustomersByUsername( username ).orElse( null );
+    }
 }

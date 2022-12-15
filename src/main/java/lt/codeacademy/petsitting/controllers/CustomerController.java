@@ -11,6 +11,7 @@ import lt.codeacademy.petsitting.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -31,18 +32,24 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    private final UserService userService;
-
     private final RoleService roleService;
 
     private final PasswordEncoder encoder;
 
     @Autowired
-    public CustomerController(CustomerService customerService, UserService userService, RoleService roleService, PasswordEncoder encoder) {
+    public CustomerController(CustomerService customerService, RoleService roleService, PasswordEncoder encoder) {
         this.customerService = customerService;
-        this.userService = userService;
         this.roleService = roleService;
         this.encoder = encoder;
+    }
+
+    @GetMapping( "/get" )
+    public Customer loadCustomer(){
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if( auth != null ){
+            return customerService.getByUsername( auth.getName() );
+        }
+        return null;
     }
 
     @PostMapping( "/signup")
