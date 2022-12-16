@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 
 @Getter
 @Setter
@@ -16,5 +17,8 @@ public class Customer extends User{
 
     private String firstName;
     private String lastName;
+
+    @OneToOne
+    private Address address;
 
 }
