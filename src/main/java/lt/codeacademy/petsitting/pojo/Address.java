@@ -1,19 +1,17 @@
 package lt.codeacademy.petsitting.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Address {
     @Id
@@ -37,8 +35,15 @@ public class Address {
     private String country;
 
     @NotBlank
+    @Size( min = 2, max = 255 )
+    private String postCode;
+
     private double longitude;
 
-    @NotBlank
     private double latitude;
+
+    @JsonIgnore
+    @OneToOne( mappedBy = "address")
+    private Customer customer;
+
 }
