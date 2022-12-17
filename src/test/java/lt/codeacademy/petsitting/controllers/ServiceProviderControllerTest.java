@@ -1,9 +1,5 @@
 package lt.codeacademy.petsitting.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.repositories.ServiceProviderRepository;
 import lt.codeacademy.petsitting.repositories.UserRepository;
@@ -17,6 +13,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static lt.codeacademy.petsitting.controllers.Utils.getValidServiceProvider;
+import static lt.codeacademy.petsitting.controllers.Utils.serializeObjectToJSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,7 +43,7 @@ public class ServiceProviderControllerTest {
     void registerServiceProvider_whenValidServiceProviderIsSupplied_statusIsOk() throws Exception {
         mockMvc.perform( post("/api/providers/signup" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( getValidServiceProviderAsJson() ))
+                        .content( serializeObjectToJSON( getValidServiceProvider() ) ))
                 .andExpect( status().isOk());
 
     }
@@ -54,17 +52,17 @@ public class ServiceProviderControllerTest {
     void registerServiceProvider_whenExistingServiceProviderIsProvided_errorIsReturned() throws Exception {
         mockMvc.perform( post("/api/providers/signup" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( getValidServiceProviderAsJson() ))
+                        .content( serializeObjectToJSON( getValidServiceProvider() ) ))
                 .andExpect( status().isOk());
 
         mockMvc.perform( post("/api/providers/signup" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( getValidServiceProviderAsJson() ))
+                        .content( serializeObjectToJSON( getValidServiceProvider() ) ))
                 .andExpect( status().isBadRequest() );
     }
 
     @Test
-    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER" })
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
     void loadServiceProvider_whenRequestedServiceProviderExists_serviceProviderIsReturned() throws Exception {
         ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
 
@@ -75,28 +73,10 @@ public class ServiceProviderControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER" })
-    void loadCustomer_whenRequestedCustomerDoesNotExist_statusIsOk() throws Exception {
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void loadServiceProvider_whenRequestedProviderDoesNotExist_statusIsOk() throws Exception {
         mockMvc.perform( get("/api/providers/get" ))
                 .andExpect( status().isOk() );
     }
 
-    private String getValidServiceProviderAsJson() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure( SerializationFeature.WRAP_ROOT_VALUE, false );
-        ObjectWriter objectWriter = mapper.writer().withDefaultPrettyPrinter();
-
-        return objectWriter.writeValueAsString( getValidServiceProvider() );
-    }
-
-    private ServiceProvider getValidServiceProvider(){
-        return ServiceProvider
-                .builder()
-                .username( "username" )
-                .password( "P4ssword" )
-                .firstName( "firstName" )
-                .lastName( "lastName")
-                .email( "test@email.com" )
-                .build();
-    }
 }
