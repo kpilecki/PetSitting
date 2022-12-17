@@ -1,9 +1,5 @@
 package lt.codeacademy.petsitting.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.repositories.CustomerRepository;
 import lt.codeacademy.petsitting.repositories.UserRepository;
@@ -17,6 +13,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static lt.codeacademy.petsitting.controllers.Utils.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -75,7 +72,7 @@ public class CustomerControllerTest {
 
         mockMvc.perform( post("/api/customers/signup" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( serializeCustomerToJSON( invalidCustomer ) ))
+                        .content( serializeObjectToJSON( invalidCustomer ) ))
                 .andExpect( status().isBadRequest() );
 
     }
@@ -99,27 +96,11 @@ public class CustomerControllerTest {
                 .andExpect( status().isOk() );
     }
 
-    private String getValidCustomerAsJson() throws JsonProcessingException {
-
-        return serializeCustomerToJSON( getValidCustomer() );
+    @Test
+    void loadCustomer_whenUserIsNotLoggedIn_statusIsUnauthorized() throws Exception {
+        mockMvc.perform( get( "/api/customers/get" ))
+                .andExpect( status().isUnauthorized() );
     }
 
-    private String serializeCustomerToJSON( Customer customer ) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure( SerializationFeature.WRAP_ROOT_VALUE, false );
-        ObjectWriter objectWriter = mapper.writer().withDefaultPrettyPrinter();
 
-        return objectWriter.writeValueAsString( customer );
-    }
-
-    private Customer getValidCustomer(){
-        return Customer
-                .builder()
-                .username( "username" )
-                .password( "P4ssword" )
-                .firstName( "firstName" )
-                .lastName( "lastName")
-                .email( "test@email.com" )
-                .build();
-    }
 }
