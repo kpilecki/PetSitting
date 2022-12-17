@@ -2,15 +2,14 @@ package lt.codeacademy.petsitting.controllers;
 
 import lt.codeacademy.petsitting.error.ApiError;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
-import lt.codeacademy.petsitting.pojo.Customer;
-import lt.codeacademy.petsitting.pojo.Role;
-import lt.codeacademy.petsitting.pojo.ServiceProvider;
-import lt.codeacademy.petsitting.pojo.UserRoles;
+import lt.codeacademy.petsitting.pojo.*;
+import lt.codeacademy.petsitting.services.AddressService;
 import lt.codeacademy.petsitting.services.RoleService;
 import lt.codeacademy.petsitting.services.ServiceProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
@@ -27,19 +26,23 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/providers")
+@PreAuthorize( "hasRole('SERVICE_PROVIDER')" )
 public class ServiceProviderController {
 
     private final ServiceProviderService serviceProviderService;
 
     private final RoleService roleService;
 
+    private final AddressService addressService;
+
     private final PasswordEncoder encoder;
 
     @Autowired
-    public ServiceProviderController( ServiceProviderService serviceProviderService, RoleService roleService, PasswordEncoder encoder) {
+    public ServiceProviderController(ServiceProviderService serviceProviderService, RoleService roleService, AddressService addressService, PasswordEncoder encoder) {
 
         this.serviceProviderService = serviceProviderService;
         this.roleService = roleService;
+        this.addressService = addressService;
         this.encoder = encoder;
     }
 
@@ -53,6 +56,7 @@ public class ServiceProviderController {
     }
 
     @PostMapping("/signup")
+    @PreAuthorize( "permitAll()" )
     public ResponseEntity<?> registerServiceProvider(@Valid @RequestBody ServiceProvider serviceProvider ){
 
         ServiceProvider newServiceProvider = ServiceProvider.builder()
@@ -79,7 +83,46 @@ public class ServiceProviderController {
         newServiceProvider.getRoles().addAll( Set.of( customerRole, serviceProviderRole ));
         serviceProviderService.save( newServiceProvider );
 
-        return ResponseEntity.ok( new MessageResponse( "User registered successfully!" ) );
+        return ResponseEntity.ok( new MessageResponse( "Service Provider registered successfully!" ) );
+    }
+
+    @PostMapping("/address")
+    public Address addOrUpdatePublicAddress(@Valid @RequestBody Address address ){
+        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        assert serviceProvider != null;
+
+        if( serviceProvider.getPublicAddress() == null ){
+            Address savedAddress = addressService.save( address );
+            serviceProvider.setPublicAddress( savedAddress );
+        } else {
+            address.setId( serviceProvider.getPublicAddress().getId() );
+            serviceProvider.setPublicAddress( addressService.save( address ));
+        }
+        serviceProviderService.save( serviceProvider );
+        return serviceProvider.getPublicAddress();
+    }
+
+    @DeleteMapping("/address/{id}")
+    public ResponseEntity<?> deleteAddress( @PathVariable( name = "id" ) Long id ){
+        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        assert serviceProvider != null;
+
+        if( serviceProvider.getPublicAddress() == null || !serviceProvider.getPublicAddress().getId().equals( id ) ){
+            return ResponseEntity.badRequest().body( "Error: Address does not exist" );
+        } else {
+            serviceProvider.setPublicAddress( null );
+            serviceProviderService.save( serviceProvider );
+            addressService.deleteById( id );
+            return ResponseEntity.ok().body( "Address deleted successfully");
+        }
+    }
+
+    @GetMapping("/address")
+    public Address getAddress(){
+        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        assert serviceProvider != null;
+
+        return serviceProvider.getPublicAddress();
     }
 
     @ExceptionHandler( {MethodArgumentNotValidException.class} )
@@ -97,5 +140,13 @@ public class ServiceProviderController {
         apiError.setValidationErrors( validationErrors );
 
         return apiError;
+    }
+
+    private ServiceProvider getAuthenticatedServiceProvider(){
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if( auth != null ){
+            return serviceProviderService.getByUsername( auth.getName() );
+        }
+        return null;
     }
 }
