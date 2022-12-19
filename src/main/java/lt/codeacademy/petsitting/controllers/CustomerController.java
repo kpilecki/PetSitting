@@ -1,6 +1,7 @@
 package lt.codeacademy.petsitting.controllers;
 
 import lt.codeacademy.petsitting.error.ApiError;
+import lt.codeacademy.petsitting.payload.request.CustomerUpdateRequest;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
 import lt.codeacademy.petsitting.pojo.Address;
 import lt.codeacademy.petsitting.pojo.Customer;
@@ -52,6 +53,32 @@ public class CustomerController {
     @GetMapping( "/get" )
     public Customer loadCustomer(){
         return getAuthenticatedCustomer();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> updateCustomer(@Valid @RequestBody CustomerUpdateRequest customerUpdateRequest ){
+        Customer customer = getAuthenticatedCustomer();
+        assert customer != null;
+
+        if( customerUpdateRequest.getUsername() != null
+                && !customerUpdateRequest.getUsername().equals( "" ) ){
+            customer.setUsername( customerUpdateRequest.getUsername() );
+        }
+        if( customerUpdateRequest.getFirstName() != null
+                && !customerUpdateRequest.getFirstName().equals( "" )){
+            customer.setFirstName( customerUpdateRequest.getFirstName() );
+        }
+        if( customerUpdateRequest.getLastName() != null
+                && !customerUpdateRequest.getLastName().equals( "" ) ){
+            customer.setLastName( customerUpdateRequest.getLastName() );
+        }
+        if( customerUpdateRequest.getEmail() != null
+                && !customerUpdateRequest.getEmail().equals( "" ) ){
+            customer.setEmail( customerUpdateRequest.getEmail() );
+        }
+        customerService.save( customer );
+
+        return ResponseEntity.ok( new MessageResponse( "Customer updated successfully!" ) );
     }
 
     @PostMapping( "/signup")

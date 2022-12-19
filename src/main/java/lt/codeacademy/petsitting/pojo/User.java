@@ -1,6 +1,5 @@
 package lt.codeacademy.petsitting.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lt.codeacademy.petsitting.validators.UniqueEmail;
@@ -32,7 +31,6 @@ public class User {
 
     @NotBlank
     @Size( min = 4, max = 255 )
-    @JsonIgnore
     private String password;
 
     @NotBlank
