@@ -6,6 +6,7 @@ import lt.codeacademy.petsitting.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Service
@@ -14,7 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService( UserRepository userRepository ) {
         this.userRepository = userRepository;
     }
 
@@ -22,7 +23,7 @@ public class UserService {
         return userRepository.save( user );
     }
 
-    public Optional<User> getUserById(Long id ){
+    public Optional<User> getUserById( Long id ){
         return userRepository.findById( id );
     }
 
@@ -36,6 +37,10 @@ public class UserService {
 
     public boolean existsByEmail( String email ) {
         return userRepository.existsByEmail( email );
+    }
+
+    public Collection<User> findAll(){
+        return userRepository.findAll();
     }
 
 
