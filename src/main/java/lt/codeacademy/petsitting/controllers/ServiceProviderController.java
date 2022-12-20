@@ -1,6 +1,7 @@
 package lt.codeacademy.petsitting.controllers;
 
 import lt.codeacademy.petsitting.error.ApiError;
+import lt.codeacademy.petsitting.payload.request.ServiceProviderAboutRequest;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
 import lt.codeacademy.petsitting.pojo.*;
 import lt.codeacademy.petsitting.services.AddressService;
@@ -123,6 +124,25 @@ public class ServiceProviderController {
         assert serviceProvider != null;
 
         return serviceProvider.getPublicAddress();
+    }
+
+    @GetMapping( "/about")
+    public String getAbout(){
+        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        assert serviceProvider != null;
+
+        return serviceProvider.getAbout();
+    }
+
+    @PostMapping("/about")
+    public ResponseEntity<?> updateAbout( @Valid @RequestBody ServiceProviderAboutRequest request ){
+        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        assert serviceProvider != null;
+
+        serviceProvider.setAbout( request.getAbout() );
+        serviceProviderService.save( serviceProvider );
+
+        return ResponseEntity.ok( "Success: About updated successfully" );
     }
 
     @ExceptionHandler( {MethodArgumentNotValidException.class} )

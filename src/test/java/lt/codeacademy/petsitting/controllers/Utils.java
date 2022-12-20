@@ -63,6 +63,7 @@ public class Utils {
                 .firstName( "firstName" )
                 .lastName( "lastName")
                 .email( "test@email.com" )
+                .about( "About Service Provider")
                 .build();
     }
 }

@@ -1,9 +1,11 @@
 package lt.codeacademy.petsitting.controllers;
 
+import lt.codeacademy.petsitting.payload.request.ServiceProviderAboutRequest;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.repositories.ServiceProviderRepository;
 import lt.codeacademy.petsitting.repositories.UserRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -79,4 +81,81 @@ public class ServiceProviderControllerTest {
                 .andExpect( status().isOk() );
     }
 
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void getAbout_whenAboutIsRequested_statusIsOk() throws Exception {
+       serviceProviderRepository.save( getValidServiceProvider() );
+        mockMvc.perform( get("/api/providers/about/" ))
+                .andExpect( status().isOk() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void getAbout_whenAboutIsRequested_aboutIsReturned() throws Exception {
+        ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
+
+        mockMvc.perform( get("/api/providers/about/" ))
+                .andExpect( status().isOk() )
+                .andExpect( content().string( savedServiceProvider.getAbout() ));
+    }
+
+    @Test
+    void getAbout_whenUnauthorizedUserRequestsAbout_statusIsUnauthorized() throws Exception {
+        mockMvc.perform( get("/api/providers/about/" ))
+                .andExpect( status().isUnauthorized() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void updateAbout_whenValidAboutIsSupplied_statusIsOk() throws Exception {
+        serviceProviderRepository.save( getValidServiceProvider() );
+        String newAbout = "New About Service Provider";
+        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
+
+        mockMvc.perform( post("/api/providers/about/" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( serializeObjectToJSON( request ) ))
+                .andExpect( status().isOk() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void updateAbout_whenValidAboutIsSupplied_aboutIsUpdated() throws Exception {
+        serviceProviderRepository.save( getValidServiceProvider() );
+        String newAbout = "New About Service Provider";
+        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
+
+        mockMvc.perform( post("/api/providers/about/" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( serializeObjectToJSON( request ) ))
+                .andExpect( status().isOk() );
+
+        Assertions.assertEquals( 1, serviceProviderRepository.count() );
+        ServiceProvider serviceProvider = serviceProviderRepository.findAll().get( 0 );
+        Assertions.assertEquals( newAbout, serviceProvider.getAbout() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void updateAbout_whenInValidAboutIsSupplied_statusIsBadRequest() throws Exception {
+        serviceProviderRepository.save( getValidServiceProvider() );
+        String newAbout = "New About Service Provider".repeat(200);
+        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
+
+        mockMvc.perform( post("/api/providers/about/" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( serializeObjectToJSON( request ) ))
+                .andExpect( status().isBadRequest() );
+    }
+
+    @Test
+    void updateAbout_whenUnauthorizedUserUpdatesAbout_statusIsUnauthorized() throws Exception {
+        String newAbout = "New About Service Provider";
+        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
+
+        mockMvc.perform( post("/api/providers/about/" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( serializeObjectToJSON( request ) ))
+                .andExpect( status().isUnauthorized() );
+    }
 }
