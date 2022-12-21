@@ -1,5 +1,6 @@
 package lt.codeacademy.petsitting.pojo;
 
+import com.google.cloud.storage.BlobId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +18,7 @@ public class Customer extends User{
 
     private String firstName;
     private String lastName;
-
+    private BlobId profileImageId;
     @OneToOne
     private Address address;
 
