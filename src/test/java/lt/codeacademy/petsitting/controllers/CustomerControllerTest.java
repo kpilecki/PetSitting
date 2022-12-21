@@ -367,5 +367,5 @@ public class CustomerControllerTest {
                 .andExpect( status().isUnauthorized() );
     }
 
-
+    //TODO Add CustomerController tests for image upload and retrieve
 }

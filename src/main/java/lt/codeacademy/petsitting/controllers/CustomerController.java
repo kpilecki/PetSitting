@@ -1,7 +1,11 @@
 package lt.codeacademy.petsitting.controllers;
 
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import lt.codeacademy.petsitting.error.ApiError;
 import lt.codeacademy.petsitting.payload.request.CustomerUpdateRequest;
+import lt.codeacademy.petsitting.payload.response.ImageResponse;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
 import lt.codeacademy.petsitting.pojo.Address;
 import lt.codeacademy.petsitting.pojo.Customer;
@@ -11,6 +15,7 @@ import lt.codeacademy.petsitting.services.AddressService;
 import lt.codeacademy.petsitting.services.CustomerService;
 import lt.codeacademy.petsitting.services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +25,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,6 +43,8 @@ import java.util.Map;
 @PreAuthorize( "hasRole('CUSTOMER')" )
 public class CustomerController {
 
+    private static final long IMAGE_MAX_FILESIZE = 2000000;
+
     private final CustomerService customerService;
 
     private final RoleService roleService;
@@ -42,12 +53,15 @@ public class CustomerController {
 
     private final PasswordEncoder encoder;
 
+    private final Storage storage;
+
     @Autowired
-    public CustomerController(CustomerService customerService, RoleService roleService, AddressService addressService, PasswordEncoder encoder) {
+    public CustomerController(CustomerService customerService, RoleService roleService, AddressService addressService, PasswordEncoder encoder, Storage storage) {
         this.customerService = customerService;
         this.roleService = roleService;
         this.addressService = addressService;
         this.encoder = encoder;
+        this.storage = storage;
     }
 
     @GetMapping( "/get" )
@@ -143,6 +157,50 @@ public class CustomerController {
         assert customer != null;
 
         return customer.getAddress();
+    }
+
+    @PostMapping("/image" )
+    public ResponseEntity<?> uploadImage( @RequestBody MultipartFile file ) throws IOException {
+
+        if( file == null || file.isEmpty() ) {
+            return ResponseEntity.badRequest().body( "Error: File is empty" );
+        } else if( file.getSize() > IMAGE_MAX_FILESIZE ){
+            return ResponseEntity.badRequest().body( "Error: File size limit exceeded, max image size is 2MB" );
+        }
+
+        Customer customer = getAuthenticatedCustomer();
+        assert customer != null;
+        String originalFileName = file.getOriginalFilename();
+        assert originalFileName != null;
+
+        String fileName = customer.getId()
+                + "_"
+                + customer.getUsername()
+                + "_"
+                + originalFileName.substring( originalFileName.lastIndexOf( "." ) + 1 );
+
+        BlobId id = BlobId.of( "pet_sitting", fileName);
+        BlobInfo info = BlobInfo.newBuilder( id ).build();
+        byte[] fileAsByteArray = file.getBytes();
+        storage.create( info, fileAsByteArray );
+
+        customer.setProfileImageId( id );
+        customerService.save( customer );
+
+        return ResponseEntity.ok( "Success: Image saved" );
+    }
+
+    @GetMapping( "/image")
+    public ImageResponse getImage() throws IOException {
+        Customer customer = getAuthenticatedCustomer();
+        assert customer != null;
+        if( customer.getProfileImageId() == null ){
+
+            File file = new ClassPathResource("/static/images/profile_image_placeholder.png").getFile();
+            return new ImageResponse( Files.readAllBytes( file.toPath() ));
+        }
+        return  new ImageResponse( storage.get( customer.getProfileImageId() ).getContent() );
+
     }
 
     @ExceptionHandler( {MethodArgumentNotValidException.class} )
