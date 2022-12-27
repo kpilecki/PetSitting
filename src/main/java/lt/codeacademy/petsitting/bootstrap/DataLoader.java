@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Profile( "default")
@@ -21,15 +22,18 @@ public class DataLoader implements CommandLineRunner {
 
     private final CustomerService customerService;
 
+    private final PetService petService;
+
     private final ServiceProviderService serviceProviderService;
 
     private final PasswordEncoder encoder;
 
-    public DataLoader(UserService userService, RoleService roleService, AddressService addressService, CustomerService customerService, ServiceProviderService serviceProviderService, PasswordEncoder encoder) {
+    public DataLoader(UserService userService, RoleService roleService, AddressService addressService, CustomerService customerService, PetService petService, ServiceProviderService serviceProviderService, PasswordEncoder encoder) {
         this.userService = userService;
         this.roleService = roleService;
         this.addressService = addressService;
         this.customerService = customerService;
+        this.petService = petService;
         this.serviceProviderService = serviceProviderService;
         this.encoder = encoder;
     }
@@ -65,6 +69,27 @@ public class DataLoader implements CommandLineRunner {
                 .roles( Set.of( customerRole ) )
                 .address( customerAddress )
                 .build();
+
+        Pet pet = Pet.builder()
+                .name( "Cooper" )
+                .species( PetType.DOG )
+                .breed( "German Shepherd" )
+                .size( PetSize.LARGE )
+                .gender( PetGender.MALE )
+                .birthYear( 2019 )
+                .neutered( true )
+                .chipped( true )
+                .vaccinated( true )
+                .houseTrained( false )
+                .friendlyWithDogs( true )
+                .friendlyWithCats( false )
+                .friendlyWithKids( true )
+                .friendlyWithAdults( true )
+                .description( "Lovely dog named Cooper" )
+                .build();
+
+        Pet savedPet = petService.save( pet );
+        customer.setPets( List.of( savedPet ) );
         customerService.save( customer );
 
         Address providerPersonalAddress = addressService.save(
