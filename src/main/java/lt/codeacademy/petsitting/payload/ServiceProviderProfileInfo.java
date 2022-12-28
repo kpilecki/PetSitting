@@ -21,6 +21,7 @@ public class ServiceProviderProfileInfo {
     private String about;
 
     @NotBlank
+    @Size( min = 4, max = 50 )
     private String headline;
 
     @NotNull
