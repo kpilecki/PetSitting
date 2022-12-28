@@ -19,9 +19,7 @@ import java.util.List;
 
 import static lt.codeacademy.petsitting.controllers.Utils.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -184,4 +182,68 @@ public class ServiceControllerTest {
                 .andExpect( status().isUnauthorized() );
 
     }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void deleteService_whenValidServiceExists_statusIsOk() throws Exception {
+        ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
+        Service savedService = serviceRepository.save( getValidService() );
+        savedServiceProvider.setServices( List.of( savedService ));
+        serviceProviderRepository.save( savedServiceProvider );
+
+
+        mockMvc.perform( delete("/api/services/{id}", savedService.getId() ))
+                .andExpect( status().isOk() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void deleteService_whenValidServiceExists_serviceIsDeleted() throws Exception {
+        ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
+        Service savedService = serviceRepository.save( getValidService() );
+        savedServiceProvider.setServices( List.of( savedService ));
+        serviceProviderRepository.save( savedServiceProvider );
+
+
+        mockMvc.perform( delete("/api/services/{id}", savedService.getId() ))
+                .andExpect( status().isOk() );
+        Assertions.assertEquals( 0, serviceRepository.count() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void deleteService_whenNoValidServiceExists_statusIsBadRequest() throws Exception {
+        serviceProviderRepository.save( getValidServiceProvider() );
+
+        mockMvc.perform( delete("/api/services/{id}", 1L ))
+                .andExpect( status().isBadRequest() );
+    }
+
+    @Test
+    @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
+    void deleteService_whenInValidIdIsSupplied_noServiceIsDeleted() throws Exception {
+        ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
+        Service savedService = serviceRepository.save( getValidService() );
+        savedServiceProvider.setServices( List.of( savedService ));
+        serviceProviderRepository.save( savedServiceProvider );
+
+
+        mockMvc.perform( delete("/api/services/{id}", savedService.getId() - 1 ))
+                .andExpect( status().isBadRequest() );
+        Assertions.assertEquals( 1, serviceRepository.count() );
+    }
+
+    @Test
+    void deleteService_whenUnauthorizedUserMakesRequest_statusIsUnauthorized() throws Exception {
+        ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
+        Service savedService = serviceRepository.save( getValidService() );
+        savedServiceProvider.setServices( List.of( savedService ));
+        serviceProviderRepository.save( savedServiceProvider );
+
+
+        mockMvc.perform( delete("/api/services/{id}", savedService.getId() ))
+                .andExpect( status().isUnauthorized() );
+    }
+
+
 }
