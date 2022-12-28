@@ -1,6 +1,7 @@
 package lt.codeacademy.petsitting.controllers;
 
-import lt.codeacademy.petsitting.payload.request.ServiceProviderAboutRequest;
+import lt.codeacademy.petsitting.payload.ServiceProviderProfileInfo;
+import lt.codeacademy.petsitting.pojo.PaymentMethod;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.repositories.ServiceProviderRepository;
 import lt.codeacademy.petsitting.repositories.UserRepository;
@@ -14,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static lt.codeacademy.petsitting.controllers.Utils.getValidServiceProvider;
 import static lt.codeacademy.petsitting.controllers.Utils.serializeObjectToJSON;
@@ -83,79 +86,91 @@ public class ServiceProviderControllerTest {
 
     @Test
     @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
-    void getAbout_whenAboutIsRequested_statusIsOk() throws Exception {
+    void getProfileInfo_whenInfoIsRequested_statusIsOk() throws Exception {
        serviceProviderRepository.save( getValidServiceProvider() );
-        mockMvc.perform( get("/api/providers/about/" ))
+        mockMvc.perform( get("/api/providers/info/" ))
                 .andExpect( status().isOk() );
     }
 
     @Test
     @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
-    void getAbout_whenAboutIsRequested_aboutIsReturned() throws Exception {
+    void getProfileInfo_whenInfoIsRequested_infoIsReturned() throws Exception {
         ServiceProvider savedServiceProvider = serviceProviderRepository.save( getValidServiceProvider() );
 
-        mockMvc.perform( get("/api/providers/about/" ))
+        mockMvc.perform( get("/api/providers/info/" ))
                 .andExpect( status().isOk() )
-                .andExpect( content().string( savedServiceProvider.getAbout() ));
+                .andExpect( jsonPath( "$.about" , equalTo( savedServiceProvider.getAbout() )) );
     }
 
     @Test
-    void getAbout_whenUnauthorizedUserRequestsAbout_statusIsUnauthorized() throws Exception {
-        mockMvc.perform( get("/api/providers/about/" ))
+    void getProfileInfo_whenUnauthorizedUserRequestsInfo_statusIsUnauthorized() throws Exception {
+        mockMvc.perform( get("/api/providers/info/" ))
                 .andExpect( status().isUnauthorized() );
     }
 
     @Test
     @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
-    void updateAbout_whenValidAboutIsSupplied_statusIsOk() throws Exception {
+    void updateInfo_whenValidInfoIsSupplied_statusIsOk() throws Exception {
         serviceProviderRepository.save( getValidServiceProvider() );
-        String newAbout = "New About Service Provider";
-        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
 
-        mockMvc.perform( post("/api/providers/about/" )
+        mockMvc.perform( post("/api/providers/info/" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( serializeObjectToJSON( request ) ))
+                        .content( serializeObjectToJSON( getValidServiceProviderProfileInfo() ) ))
                 .andExpect( status().isOk() );
     }
 
     @Test
     @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
-    void updateAbout_whenValidAboutIsSupplied_aboutIsUpdated() throws Exception {
+    void updateInfo_whenValidInfoIsSupplied_infoIsUpdated() throws Exception {
         serviceProviderRepository.save( getValidServiceProvider() );
-        String newAbout = "New About Service Provider";
-        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
+        ServiceProviderProfileInfo info = getValidServiceProviderProfileInfo();
 
-        mockMvc.perform( post("/api/providers/about/" )
+        mockMvc.perform( post("/api/providers/info/" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( serializeObjectToJSON( request ) ))
+                        .content( serializeObjectToJSON( info ) ))
                 .andExpect( status().isOk() );
 
         Assertions.assertEquals( 1, serviceProviderRepository.count() );
         ServiceProvider serviceProvider = serviceProviderRepository.findAll().get( 0 );
-        Assertions.assertEquals( newAbout, serviceProvider.getAbout() );
+        Assertions.assertEquals( info.getAbout(), serviceProvider.getAbout() );
     }
 
     @Test
     @WithMockUser(username = "username", authorities = { "ROLE_CUSTOMER", "ROLE_SERVICE_PROVIDER" })
-    void updateAbout_whenInValidAboutIsSupplied_statusIsBadRequest() throws Exception {
+    void updateInfo_whenInValidInfoIsSupplied_statusIsBadRequest() throws Exception {
         serviceProviderRepository.save( getValidServiceProvider() );
-        String newAbout = "New About Service Provider".repeat(200);
-        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
 
-        mockMvc.perform( post("/api/providers/about/" )
+        mockMvc.perform( post("/api/providers/info/" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( serializeObjectToJSON( request ) ))
+                        .content( serializeObjectToJSON( getInValidServiceProviderProfileInfo() ) ))
                 .andExpect( status().isBadRequest() );
     }
 
     @Test
-    void updateAbout_whenUnauthorizedUserUpdatesAbout_statusIsUnauthorized() throws Exception {
-        String newAbout = "New About Service Provider";
-        ServiceProviderAboutRequest request= new ServiceProviderAboutRequest( newAbout );
+    void updateInfo_whenUnauthorizedUserUpdatesInfo_statusIsUnauthorized() throws Exception {
 
-        mockMvc.perform( post("/api/providers/about/" )
+        mockMvc.perform( post("/api/providers/info/" )
                         .contentType( MediaType.APPLICATION_JSON )
-                        .content( serializeObjectToJSON( request ) ))
+                        .content( serializeObjectToJSON( getValidServiceProviderProfileInfo() ) ))
                 .andExpect( status().isUnauthorized() );
+    }
+
+    private ServiceProviderProfileInfo getValidServiceProviderProfileInfo(){
+        return ServiceProviderProfileInfo.builder()
+                .yearsOfExperience( 10 )
+                .headline( "Headline" )
+                .acceptedPaymentMethods(List.of( PaymentMethod.PAYPAL, PaymentMethod.CASH ))
+                .skillDescription( "Skill description" )
+                .about( "About" )
+                .build();
+    }
+    private ServiceProviderProfileInfo getInValidServiceProviderProfileInfo(){
+        return ServiceProviderProfileInfo.builder()
+                .yearsOfExperience( 0 )
+                .headline( null )
+                .acceptedPaymentMethods( null )
+                .skillDescription( null )
+                .about( null )
+                .build();
     }
 }

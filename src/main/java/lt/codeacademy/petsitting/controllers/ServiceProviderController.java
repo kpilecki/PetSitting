@@ -1,7 +1,7 @@
 package lt.codeacademy.petsitting.controllers;
 
 import lt.codeacademy.petsitting.error.ApiError;
-import lt.codeacademy.petsitting.payload.request.ServiceProviderAboutRequest;
+import lt.codeacademy.petsitting.payload.ServiceProviderProfileInfo;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
 import lt.codeacademy.petsitting.pojo.*;
 import lt.codeacademy.petsitting.services.AddressService;
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/providers")
 @PreAuthorize( "hasRole('SERVICE_PROVIDER')" )
 public class ServiceProviderController {
@@ -58,7 +59,7 @@ public class ServiceProviderController {
 
     @PostMapping("/signup")
     @PreAuthorize( "permitAll()" )
-    public ResponseEntity<?> registerServiceProvider(@Valid @RequestBody ServiceProvider serviceProvider ){
+    public ResponseEntity<?> registerServiceProvider(@Valid @RequestBody ServiceProvider serviceProvider ){ //TODO change to ServiceProviderSignupRequest
 
         ServiceProvider newServiceProvider = ServiceProvider.builder()
                 .username( serviceProvider.getUsername() )
@@ -89,7 +90,7 @@ public class ServiceProviderController {
 
     @PostMapping("/address")
     public Address addOrUpdatePublicAddress(@Valid @RequestBody Address address ){
-        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        ServiceProvider serviceProvider = serviceProviderService.getAuthenticatedServiceProvider();
         assert serviceProvider != null;
 
         if( serviceProvider.getPublicAddress() == null ){
@@ -105,7 +106,7 @@ public class ServiceProviderController {
 
     @DeleteMapping("/address/{id}")
     public ResponseEntity<?> deleteAddress( @PathVariable( name = "id" ) Long id ){
-        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        ServiceProvider serviceProvider = serviceProviderService.getAuthenticatedServiceProvider();
         assert serviceProvider != null;
 
         if( serviceProvider.getPublicAddress() == null || !serviceProvider.getPublicAddress().getId().equals( id ) ){
@@ -120,29 +121,40 @@ public class ServiceProviderController {
 
     @GetMapping("/address")
     public Address getAddress(){
-        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+        ServiceProvider serviceProvider = serviceProviderService.getAuthenticatedServiceProvider();
         assert serviceProvider != null;
 
         return serviceProvider.getPublicAddress();
     }
 
-    @GetMapping( "/about")
-    public String getAbout(){
-        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+    @GetMapping( "/info")
+    public ServiceProviderProfileInfo getProfileInfo(){
+        ServiceProvider serviceProvider = serviceProviderService.getAuthenticatedServiceProvider();
         assert serviceProvider != null;
 
-        return serviceProvider.getAbout();
+        return ServiceProviderProfileInfo.builder()
+                .about( serviceProvider.getAbout() )
+                .skillDescription( serviceProvider.getSkillDescription() )
+                .acceptedPaymentMethods( serviceProvider.getAcceptedPaymentMethods() )
+                .headline( serviceProvider.getHeadline() )
+                .yearsOfExperience( serviceProvider.getYearsOfExperience() )
+                .build();
     }
 
-    @PostMapping("/about")
-    public ResponseEntity<?> updateAbout( @Valid @RequestBody ServiceProviderAboutRequest request ){
-        ServiceProvider serviceProvider = getAuthenticatedServiceProvider();
+    @PostMapping("/info")
+    public ResponseEntity<?> updateInfo( @Valid @RequestBody ServiceProviderProfileInfo request ){
+        ServiceProvider serviceProvider = serviceProviderService.getAuthenticatedServiceProvider();
         assert serviceProvider != null;
 
         serviceProvider.setAbout( request.getAbout() );
+        serviceProvider.setHeadline( request.getHeadline() );
+        serviceProvider.setYearsOfExperience( request.getYearsOfExperience() );
+        serviceProvider.setSkillDescription( request.getSkillDescription() );
+        serviceProvider.setAcceptedPaymentMethods( request.getAcceptedPaymentMethods() );
+
         serviceProviderService.save( serviceProvider );
 
-        return ResponseEntity.ok( "Success: About updated successfully" );
+        return ResponseEntity.ok( "Success: Profile info updated successfully" );
     }
 
     @ExceptionHandler( {MethodArgumentNotValidException.class} )
@@ -162,11 +174,5 @@ public class ServiceProviderController {
         return apiError;
     }
 
-    private ServiceProvider getAuthenticatedServiceProvider(){
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if( auth != null ){
-            return serviceProviderService.getByUsername( auth.getName() );
-        }
-        return null;
-    }
+
 }
