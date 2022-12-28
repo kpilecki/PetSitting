@@ -3,6 +3,8 @@ package lt.codeacademy.petsitting.controllers;
 import lt.codeacademy.petsitting.error.ApiError;
 import lt.codeacademy.petsitting.payload.ServiceProviderProfileInfo;
 import lt.codeacademy.petsitting.payload.response.MessageResponse;
+import lt.codeacademy.petsitting.payload.response.ServiceProviderListResponse;
+import lt.codeacademy.petsitting.payload.response.ServiceProviderViewResponse;
 import lt.codeacademy.petsitting.pojo.*;
 import lt.codeacademy.petsitting.services.AddressService;
 import lt.codeacademy.petsitting.services.RoleService;
@@ -20,10 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -55,6 +54,17 @@ public class ServiceProviderController {
             return serviceProviderService.getByUsername( auth.getName() );
         }
         return null;
+    }
+
+    @GetMapping( "/view/{id}" )
+    @PreAuthorize( "hasRole('ROLE_CUSTOMER')" )
+    public ResponseEntity<?> getServiceProviderViewById(@PathVariable Long id ){
+            Optional<ServiceProvider> serviceProvider = serviceProviderService.findById( id );
+            if( serviceProvider.isPresent() ){
+                return ResponseEntity.ok( new ServiceProviderViewResponse( serviceProvider.get() ) );
+            } else {
+                return ResponseEntity.badRequest().body( "Error: Service provider not found" );
+            }
     }
 
     @PostMapping("/signup")
@@ -155,6 +165,11 @@ public class ServiceProviderController {
         serviceProviderService.save( serviceProvider );
 
         return ResponseEntity.ok( "Success: Profile info updated successfully" );
+    }
+
+    @GetMapping("/find" )
+    public ResponseEntity<?> getAllProviders( ){
+        return ResponseEntity.ok( new ServiceProviderListResponse( serviceProviderService.findAll() ));
     }
 
     @ExceptionHandler( {MethodArgumentNotValidException.class} )
