@@ -80,15 +80,16 @@ public class ImageController {
     public ImageResponse getImage() throws IOException {
         Customer customer = customerService.getAuthenticatedCustomer();
         assert customer != null;
-        Blob image =  storage.get( customer.getProfileImageId() );
 
-        if( image == null ){
-            File file = new ClassPathResource("/static/images/profile_image_placeholder.png").getFile();
-            return new ImageResponse( Files.readAllBytes( file.toPath() ));
+        if( customer.getProfileImageId() != null ){
+            Blob image =  storage.get( customer.getProfileImageId() );
+
+            if( image == null ){
+               return getPlaceholderImage();
+            }
+            return  new ImageResponse( image.getContent() );
         }
-
-        return  new ImageResponse( image.getContent() );
-
+       return getPlaceholderImage();
     }
 
     @GetMapping( "/pet/{id}")
@@ -139,6 +140,11 @@ public class ImageController {
             return ResponseEntity.ok( "Success: Image saved" );
         }
         return ResponseEntity.badRequest().body( "Error: Pet not found" );
+    }
+
+    private ImageResponse getPlaceholderImage() throws IOException {
+        File file = new ClassPathResource("/static/images/profile_image_placeholder.png").getFile();
+        return new ImageResponse( Files.readAllBytes( file.toPath() ));
     }
 
 }
