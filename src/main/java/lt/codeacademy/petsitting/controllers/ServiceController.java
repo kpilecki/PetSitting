@@ -79,4 +79,25 @@ public class ServiceController {
         }
     }
 
+    @DeleteMapping( "/{id}" )
+    public ResponseEntity<?> deleteService( @PathVariable Long id ){
+        ServiceProvider serviceProvider = serviceProviderService.getAuthenticatedServiceProvider();
+
+        Service serviceToDelete = serviceProvider.getServices()
+                .stream()
+                .filter( v -> v.getId().equals( id ) )
+                .findFirst()
+                .orElse( null );
+
+        if( serviceToDelete == null ){
+            return ResponseEntity.badRequest().body( "Error: Service not found" );
+        } else {
+            serviceProvider.getServices().remove( serviceToDelete );
+            serviceProviderService.save( serviceProvider );
+            serviceService.deleteById( id );
+
+            return ResponseEntity.ok( "Success: Service deleted" );
+        }
+    }
+
 }
