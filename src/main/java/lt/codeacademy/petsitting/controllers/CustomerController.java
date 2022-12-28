@@ -49,7 +49,7 @@ public class CustomerController {
         this.encoder = encoder;
     }
 
-    @GetMapping( "/get" )
+    @GetMapping( "/get" ) //TODO Change Response type
     public Customer loadCustomer(){
         return customerService.getAuthenticatedCustomer();
     }
