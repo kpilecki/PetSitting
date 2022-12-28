@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lt.codeacademy.petsitting.pojo.*;
 
+import java.util.List;
+
 public class Utils {
 
     public static String serializeObjectToJSON( Object object ) throws JsonProcessingException {
@@ -62,6 +64,10 @@ public class Utils {
                 .lastName( "lastName")
                 .email( "test@email.com" )
                 .about( "About Service Provider")
+                .yearsOfExperience( 10 )
+                .headline( "Headline" )
+                .acceptedPaymentMethods(List.of( PaymentMethod.PAYPAL, PaymentMethod.CASH ))
+                .skillDescription( "Skill description" )
                 .build();
     }
 
@@ -103,5 +109,37 @@ public class Utils {
 
     public static String getInValidPetAsJson() throws JsonProcessingException {
         return serializeObjectToJSON( getInValidPet() );
+    }
+
+    public static Service getValidService(){
+        return Service.builder()
+                .serviceType( ServiceType.BOARDING )
+                .acceptedPetSizes( List.of( PetSize.MEDIUM, PetSize.GIANT ))
+                .acceptedPetTypes( List.of( PetType.REPTILE, PetType.DOG ))
+                .price( 20 )
+                .maxPetAge( 10 )
+                .minPetAge( 1 )
+                .description( "Description" )
+                .build();
+    }
+
+    public static Service getInValidService(){
+        return Service.builder()
+                .serviceType( null )
+                .acceptedPetSizes( null )
+                .acceptedPetTypes( null )
+                .price( 0 )
+                .maxPetAge( 0 )
+                .minPetAge( 0 )
+                .description( null )
+                .build();
+    }
+
+    public static String getValidServiceAsJson() throws JsonProcessingException {
+        return serializeObjectToJSON( getValidService() );
+    }
+
+    public static String getInValidServiceAsJson() throws JsonProcessingException {
+        return serializeObjectToJSON( getInValidService() );
     }
 }
