@@ -47,7 +47,7 @@ public class ServiceProviderController {
         this.encoder = encoder;
     }
 
-    @GetMapping( "/get" )
+    @GetMapping( "/get" ) //TODO Change Response type
     public ServiceProvider loadServiceProvider(){
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if( auth != null ){
