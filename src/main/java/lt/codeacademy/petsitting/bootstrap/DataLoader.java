@@ -70,6 +70,8 @@ public class DataLoader implements CommandLineRunner {
                 .address( customerAddress )
                 .build();
 
+        Customer savedCustomer =customerService.save( customer );
+
         Pet pet = Pet.builder()
                 .name( "Cooper" )
                 .species( PetType.DOG )
@@ -89,8 +91,8 @@ public class DataLoader implements CommandLineRunner {
                 .build();
 
         Pet savedPet = petService.save( pet );
-        customer.setPets( List.of( savedPet ) );
-        customerService.save( customer );
+        savedCustomer.setPets( List.of( savedPet ) );
+        customerService.save( savedCustomer );
 
         Address providerPersonalAddress = addressService.save(
                 Address.builder()

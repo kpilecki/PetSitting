@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lt.codeacademy.petsitting.payload.request.LoginRequest;
-import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.pojo.User;
 import lt.codeacademy.petsitting.repositories.UserRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +66,7 @@ public class AuthControllerTest {
         mockMvc.perform( post("/api/auth/login" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( getInValidLoginRequestAsJson() ))
-                .andExpect( status().isUnauthorized() );
+                .andExpect( status().isBadRequest() );
     }
 
     private String getValidLoginRequestAsJson() throws JsonProcessingException {

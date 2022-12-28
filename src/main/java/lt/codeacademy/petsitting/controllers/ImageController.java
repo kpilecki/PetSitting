@@ -7,8 +7,10 @@ import com.google.cloud.storage.Storage;
 import lt.codeacademy.petsitting.payload.response.ImageResponse;
 import lt.codeacademy.petsitting.pojo.Customer;
 import lt.codeacademy.petsitting.pojo.Pet;
+import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.services.CustomerService;
 import lt.codeacademy.petsitting.services.PetService;
+import lt.codeacademy.petsitting.services.ServiceProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +37,14 @@ public class ImageController {
 
     private final PetService petService;
 
+    private final ServiceProviderService serviceProviderService;
+
     @Autowired
-    public ImageController(Storage storage, CustomerService customerService, PetService petService) {
+    public ImageController(Storage storage, CustomerService customerService, PetService petService, ServiceProviderService serviceProviderService) {
         this.storage = storage;
         this.customerService = customerService;
         this.petService = petService;
+        this.serviceProviderService = serviceProviderService;
     }
 
     @PostMapping("/customer" )
@@ -80,15 +85,16 @@ public class ImageController {
     public ImageResponse getImage() throws IOException {
         Customer customer = customerService.getAuthenticatedCustomer();
         assert customer != null;
-        Blob image =  storage.get( customer.getProfileImageId() );
 
-        if( image == null ){
-            File file = new ClassPathResource("/static/images/profile_image_placeholder.png").getFile();
-            return new ImageResponse( Files.readAllBytes( file.toPath() ));
+        if( customer.getProfileImageId() != null ){
+            Blob image =  storage.get( customer.getProfileImageId() );
+
+            if( image == null ){
+               return getPlaceholderImage();
+            }
+            return  new ImageResponse( image.getContent() );
         }
-
-        return  new ImageResponse( image.getContent() );
-
+       return getPlaceholderImage();
     }
 
     @GetMapping( "/pet/{id}")
@@ -139,6 +145,26 @@ public class ImageController {
             return ResponseEntity.ok( "Success: Image saved" );
         }
         return ResponseEntity.badRequest().body( "Error: Pet not found" );
+    }
+
+    @GetMapping( "/{id}")
+    public ResponseEntity<?> getProviderImageById( @PathVariable Long id ) throws IOException {
+        Optional<ServiceProvider> provider = serviceProviderService.findById( id );
+
+        if( provider.isPresent() ){
+            if( provider.get().getProfileImageId() == null ){
+                return ResponseEntity.ok( getPlaceholderImage() );
+            } else {
+                Blob image = storage.get( provider.get().getProfileImageId() );
+                return ResponseEntity.ok( new ImageResponse( image.getContent() ) );
+            }
+        }
+        return ResponseEntity.badRequest().body( "Error: Customer not found" );
+    }
+
+    private ImageResponse getPlaceholderImage() throws IOException {
+        File file = new ClassPathResource("/static/images/profile_image_placeholder.png").getFile();
+        return new ImageResponse( Files.readAllBytes( file.toPath() ));
     }
 
 }
