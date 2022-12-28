@@ -16,4 +16,8 @@ public class ServiceService {
     public Service save( Service service ) {
         return serviceRepository.save( service );
     }
+
+    public void deleteById( Long id ) {
+        serviceRepository.deleteById( id );
+    }
 }
