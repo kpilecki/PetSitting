@@ -82,6 +82,7 @@ public class PetController {
         if( petToUpdate == null ){
             return ResponseEntity.badRequest().body( "Error: Pet not found" );
         } else {
+            petToSave.setProfileImageId( petToUpdate.getProfileImageId() );
             customer.getPets().remove( petToUpdate );
             customer.getPets().add( petService.save( petToSave ) );
             customerService.save( customer );
