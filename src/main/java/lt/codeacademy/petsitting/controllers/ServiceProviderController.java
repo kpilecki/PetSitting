@@ -167,6 +167,7 @@ public class ServiceProviderController {
         return ResponseEntity.ok( "Success: Profile info updated successfully" );
     }
 
+    @PreAuthorize( "hasRole('CUSTOMER')" )
     @GetMapping("/find" )
     public ResponseEntity<?> getAllProviders( ){
         return ResponseEntity.ok( new ServiceProviderListResponse( serviceProviderService.findAll() ));
