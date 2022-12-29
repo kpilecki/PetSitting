@@ -1,17 +1,24 @@
 package lt.codeacademy.petsitting.controllers;
 
+import lt.codeacademy.petsitting.error.ApiError;
 import lt.codeacademy.petsitting.payload.response.ServiceResponse;
 import lt.codeacademy.petsitting.pojo.Service;
 import lt.codeacademy.petsitting.pojo.ServiceProvider;
 import lt.codeacademy.petsitting.services.ServiceProviderService;
 import lt.codeacademy.petsitting.services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+
+import static lt.codeacademy.petsitting.error.ApiError.getApiError;
+
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -98,6 +105,12 @@ public class ServiceController {
 
             return ResponseEntity.ok( "Success: Service deleted" );
         }
+    }
+
+    @ExceptionHandler( {MethodArgumentNotValidException.class} )
+    @ResponseStatus( HttpStatus.BAD_REQUEST )
+    ApiError handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request ){
+        return getApiError(exception, request);
     }
 
 }

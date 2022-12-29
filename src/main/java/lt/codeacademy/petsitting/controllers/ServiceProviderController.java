@@ -15,14 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
+
+import static lt.codeacademy.petsitting.error.ApiError.getApiError;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -175,19 +175,10 @@ public class ServiceProviderController {
     @ExceptionHandler( {MethodArgumentNotValidException.class} )
     @ResponseStatus( HttpStatus.BAD_REQUEST )
     ApiError handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request ){
-        ApiError apiError = new ApiError( 400, "Validation error", request.getServletPath() );
-
-        BindingResult result = exception.getBindingResult();
-
-        Map<String, String> validationErrors = new HashMap<>();
-
-        for( FieldError fieldError : result.getFieldErrors() ){
-            validationErrors.put( fieldError.getField(), fieldError.getDefaultMessage() );
-        }
-        apiError.setValidationErrors( validationErrors );
-
-        return apiError;
+        return getApiError(exception, request);
     }
+
+
 
 
 }
