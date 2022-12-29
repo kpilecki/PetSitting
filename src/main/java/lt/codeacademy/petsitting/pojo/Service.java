@@ -19,32 +19,31 @@ public class Service {
     @GeneratedValue( strategy = GenerationType.AUTO )
     private Long id;
 
-    @NotNull
+    @NotNull( message = "{validation.service.serviceType.notNullMessage}")
     private ServiceType serviceType;
 
-    @NotBlank
+    @NotBlank( message = "{validation.service.description.notBlankMessage}")
     private String description;
 
-    @NotNull
+    @NotNull( message = "{validation.service.price.notNullMessage}")
     private float price;
 
-    @NotEmpty
+    @NotEmpty( message = "{validation.service.acceptedPetTypes.notEmptyMessage}")
     @ElementCollection( targetClass = PetType.class )
     @CollectionTable
     @Enumerated( EnumType.STRING )
     private List<PetType> acceptedPetTypes;
 
-    @NotEmpty
+    @NotEmpty( message = "{validation.service.acceptedPetSizes.notEmptyMessage}")
     @ElementCollection( targetClass = PetSize.class )
     @CollectionTable
     @Enumerated( EnumType.STRING )
     private List<PetSize> acceptedPetSizes;
 
-    @NotNull
+    @NotNull( message = "{validation.service.minPetAge.notNullMessage}")
     private int minPetAge;
 
-    @NotNull
+    @NotNull( message = "{validation.service.maxPetAge.notNullMessage}")
     private int maxPetAge;
-
 
 }

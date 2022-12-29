@@ -18,53 +18,53 @@ public class Pet {
     @GeneratedValue( strategy = GenerationType.AUTO )
     private Long id;
 
-    @NotBlank
+    @NotBlank( message = "{validation.pet.name.notBlankMessage}")
     private String name;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.species.notNullMessage}")
     @Enumerated( EnumType.STRING )
     private PetType species;
 
     private String breed;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.size.notNullMessage}")
     @Enumerated( EnumType.STRING )
     private PetSize size;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.gender.notNullMessage}")
     @Enumerated( EnumType.STRING )
     private PetGender gender;
 
-    @NotNull
-    @Min( 1900 )
-    @Max( 3000 )
+    @NotNull( message = "{validation.pet.birthYear.notNullMessage}")
+    @Min( value = 1900 , message = "{validation.pet.birthYear.minMessage}")
+    @Max( value = 3000, message = "{validation.pet.birthYear.maxMessage}")
     private int birthYear;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.neutered.notNullMessage}")
     private boolean neutered;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.chipped.notNullMessage}")
     private boolean chipped;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.vaccinated.notNullMessage}")
     private boolean vaccinated;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.houseTrained.notNullMessage}")
     private boolean houseTrained;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.friendlyWithDogs.notNullMessage}")
     private boolean friendlyWithDogs;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.friendlyWithCats.notNullMessage}")
     private boolean friendlyWithCats;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.friendlyWithKids.notNullMessage}")
     private boolean friendlyWithKids;
 
-    @NotNull
+    @NotNull( message = "{validation.pet.friendlyWithAdults.notNullMessage}")
     private boolean friendlyWithAdults;
 
-    @NotBlank
+    @NotBlank( message = "{validation.pet.description.notBlankMessage}")
     private String description;
 
     private BlobId profileImageId;

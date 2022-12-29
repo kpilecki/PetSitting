@@ -24,16 +24,16 @@ public class User {
     @GeneratedValue( strategy = GenerationType.AUTO )
     private Long id;
 
-    @NotBlank
-    @Size( min = 4, max = 255 )
+    @NotBlank( message = "{validation.user.username.notBlankMessage}")
+    @Size( min = 4, max = 255, message = "{validation.user.username.sizeMessage}")
     @UniqueUsername
     private String username;
 
-    @NotBlank
-    @Size( min = 4, max = 255 )
+    @NotBlank( message = "{validation.user.password.notBlankMessage}")
+    @Size( min = 4, max = 255, message = "{validation.user.password.sizeMessage}")
     private String password;
 
-    @NotBlank
+    @NotBlank( message = "{validation.user.email.notBlankMessage}")
     @Email
     @UniqueEmail
     private String email;
