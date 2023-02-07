@@ -12,6 +12,7 @@ public class Utils {
 
     public static String serializeObjectToJSON( Object object ) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
         mapper.configure( SerializationFeature.WRAP_ROOT_VALUE, false );
         ObjectWriter objectWriter = mapper.writer().withDefaultPrettyPrinter();
 
