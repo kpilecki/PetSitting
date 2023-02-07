@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CustomerService {
 
@@ -20,15 +22,19 @@ public class CustomerService {
         return customerRepository.save( customer );
     }
 
-    public Customer getByUsername( String username ){
-        return customerRepository.getCustomersByUsername( username ).orElse( null );
-    }
-
     public Customer getAuthenticatedCustomer(){
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if( auth != null ){
-            return getByUsername( auth.getName() );
+            return findByUsername( auth.getName() ).orElse( null );
         }
         return null;
+    }
+
+    public Optional<Customer> findById( Long customerId ) {
+        return customerRepository.findById( customerId );
+    }
+
+    public Optional<Customer> findByUsername( String username ) {
+        return customerRepository.findByUsername( username );
     }
 }

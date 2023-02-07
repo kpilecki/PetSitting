@@ -42,4 +42,8 @@ public class ServiceProviderService {
     public Optional<ServiceProvider> findById(Long id ) {
         return serviceProviderRepository.findById( id );
     }
+
+    public Optional<ServiceProvider> findByUsername( String username ) {
+        return serviceProviderRepository.findByUsername( username );
+    }
 }

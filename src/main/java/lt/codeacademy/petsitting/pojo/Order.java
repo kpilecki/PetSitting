@@ -1,8 +1,23 @@
 package lt.codeacademy.petsitting.pojo;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lt.codeacademy.petsitting.validators.CustomerExists;
+import lt.codeacademy.petsitting.validators.PetExists;
+import lt.codeacademy.petsitting.validators.ServiceExists;
+import lt.codeacademy.petsitting.validators.ServiceProviderExists;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table( name = "orders" )
 public class Order {
@@ -11,20 +26,26 @@ public class Order {
     @GeneratedValue( strategy = GenerationType.AUTO )
     private Long id;
 
-    @ManyToOne
-    private ServiceProvider provider;
+    @ServiceProviderExists
+    @NotBlank
+    private String serviceProviderUsername;
 
-    @ManyToOne
-    private Customer customer;
+    @CustomerExists
+    @NotBlank
+    private String customerUsername;
 
-    @ManyToOne
-    private Service service;
+    @ServiceExists
+    @NotNull
+    private Long serviceId;
 
-    @ManyToOne
-    private Pet pet;
+    @PetExists
+    @NotNull
+    private Long petId;
 
+    @NotNull
     private LocalDate date;
 
-    private boolean confirmed;
+    @Enumerated( EnumType.STRING )
+    private OrderStatus status;
 
 }

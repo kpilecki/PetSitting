@@ -3,6 +3,9 @@ package lt.codeacademy.petsitting.services;
 import lt.codeacademy.petsitting.pojo.Service;
 import lt.codeacademy.petsitting.repositories.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Optional;
+
 @org.springframework.stereotype.Service
 public class ServiceService {
 
@@ -19,5 +22,9 @@ public class ServiceService {
 
     public void deleteById( Long id ) {
         serviceRepository.deleteById( id );
+    }
+
+    public Optional<Service> findById( Long serviceId ) {
+        return serviceRepository.findById( serviceId );
     }
 }
