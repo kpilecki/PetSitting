@@ -14,7 +14,8 @@ public class ObjectMapperConfig {
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
 
         return builder -> builder.postConfigurer( objectMapper -> 
-            objectMapper.coercionConfigFor(LogicalType.Enum)
+            objectMapper.findAndRegisterModules()
+                    .coercionConfigFor(LogicalType.Enum)
                     .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull)
         );
     }
