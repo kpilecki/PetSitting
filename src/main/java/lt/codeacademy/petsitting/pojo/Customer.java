@@ -29,7 +29,4 @@ public class Customer extends User{
     @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
     private List<Pet> pets;
 
-    @OneToMany
-    private List<Order> orders;
-
 }

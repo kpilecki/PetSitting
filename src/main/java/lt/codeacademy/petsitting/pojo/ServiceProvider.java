@@ -37,14 +37,5 @@ public class ServiceProvider extends Customer{
     private List<PaymentMethod> acceptedPaymentMethods;
 
     @OneToMany( cascade = CascadeType.ALL )
-    private List<Order> sales;
-
-    @OneToMany( cascade = CascadeType.ALL )
     private List<Service> services;
-
-
-
-
-
-
 }
